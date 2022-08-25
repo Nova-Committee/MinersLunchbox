@@ -17,6 +17,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -197,9 +198,9 @@ public class LunchboxItem extends Item {
                     }
                 }
                 if (j - i > 0) {
-                    tooltip.add(Text.translatable("tooltip.minerslunchbox.lunchbox.more", j - i).formatted(Formatting.ITALIC, Formatting.GRAY));
+                    tooltip.add(new TranslatableText("tooltip.minerslunchbox.lunchbox.more", j - i).formatted(Formatting.ITALIC, Formatting.GRAY));
                 }
-                tooltip.add(Text.translatable("tooltip.minerslunchbox.lunchbox.more_info").formatted(Formatting.BLUE));
+                tooltip.add(new TranslatableText("tooltip.minerslunchbox.lunchbox.more_info").formatted(Formatting.BLUE));
             }
         });
     }

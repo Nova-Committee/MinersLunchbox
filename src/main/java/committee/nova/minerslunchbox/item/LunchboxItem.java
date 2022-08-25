@@ -21,6 +21,7 @@ import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -228,6 +229,7 @@ public class LunchboxItem extends Item {
     private static void eatUntilFull(PlayerEntity user, World world, ItemStack lunchboxStack) {
         Random random = new Random();
         while (user.canConsume(false) && !user.getAbilities().invulnerable) {
+            if (getInventory(lunchboxStack).isEmpty()) break;
             DataClient.use(LunchboxInventory::new, lunchboxStack, (data) -> {
                 int eat = random.nextInt(data.getStacks().size());
                 ItemStack stackToEat = data.getStacks().get(eat);
@@ -240,5 +242,11 @@ public class LunchboxItem extends Item {
                 }
             });
         }
+    }
+
+    private static DefaultedList<ItemStack> getInventory(ItemStack stack) {
+        AtomicReference<DefaultedList<ItemStack>> ret = new AtomicReference<>(DefaultedList.of());
+        DataClient.use(LunchboxInventory::new, stack, (data) -> ret.set(data.getStacks()));
+        return ret.get();
     }
 }

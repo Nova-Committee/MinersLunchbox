@@ -25,7 +25,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -118,17 +117,23 @@ public class LunchboxItem extends Item {
 
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
-            int eat = new Random().nextInt(data.getStacks().size());
-            ItemStack stackToEat = data.getStacks().get(eat);
-            if (!stackToEat.isEmpty()) {
-                if (stackToEat.isFood()) {
-                    data.setStack(eat, user.eatFood(world, stackToEat));
-                } else {
-                    world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
-                }
+        if (user instanceof PlayerEntity player) {
+            if (player.isSneaking()) {
+                if (!player.isCreative() && !player.isSpectator()) eatUntilFull(player, world, stack);
+            } else {
+                DataClient.use(LunchboxInventory::new, stack, (data) -> {
+                    int eat = new Random().nextInt(data.getStacks().size());
+                    ItemStack stackToEat = data.getStacks().get(eat);
+                    if (!stackToEat.isEmpty()) {
+                        if (stackToEat.isFood()) {
+                            data.setStack(eat, user.eatFood(world, stackToEat));
+                        } else {
+                            world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
+                        }
+                    }
+                });
             }
-        });
+        }
         return stack;
     }
 
@@ -217,6 +222,23 @@ public class LunchboxItem extends Item {
             return super.use(world, user, hand);
         } else {
             return TypedActionResult.pass(stack);
+        }
+    }
+
+    private static void eatUntilFull(PlayerEntity user, World world, ItemStack lunchboxStack) {
+        Random random = new Random();
+        while (user.canConsume(false) && !user.getAbilities().invulnerable) {
+            DataClient.use(LunchboxInventory::new, lunchboxStack, (data) -> {
+                int eat = random.nextInt(data.getStacks().size());
+                ItemStack stackToEat = data.getStacks().get(eat);
+                if (!stackToEat.isEmpty()) {
+                    if (stackToEat.isFood()) {
+                        data.setStack(eat, user.eatFood(world, stackToEat));
+                    } else {
+                        world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
+                    }
+                }
+            });
         }
     }
 }

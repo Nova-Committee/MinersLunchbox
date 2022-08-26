@@ -127,7 +127,7 @@ public class LunchboxItem extends Item {
                     ItemStack stackToEat = data.getStacks().get(eat);
                     if (!stackToEat.isEmpty()) {
                         if (stackToEat.isFood()) {
-                            data.setStack(eat, user.eatFood(world, stackToEat));
+                            data.setStack(eat, stackToEat.finishUsing(world, user));
                         } else {
                             world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
                         }
@@ -235,7 +235,7 @@ public class LunchboxItem extends Item {
                 ItemStack stackToEat = data.getStacks().get(eat);
                 if (!stackToEat.isEmpty()) {
                     if (stackToEat.isFood()) {
-                        data.setStack(eat, user.eatFood(world, stackToEat));
+                        data.setStack(eat, stackToEat.finishUsing(world, user));
                     } else {
                         world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
                     }

@@ -128,7 +128,7 @@ public class LunchboxItem extends Item {
                     ItemStack stackToEat = data.getStacks().get(eat);
                     if (!stackToEat.isEmpty()) {
                         if (stackToEat.isFood()) {
-                            data.setStack(eat, user.eatFood(world, stackToEat));
+                            data.setStack(eat, stackToEat.finishUsing(world, user));
                         } else {
                             world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
                         }
@@ -227,7 +227,7 @@ public class LunchboxItem extends Item {
         }
     }
 
-    private static void eatUntilFull(PlayerEntity user, World world, ItemStack lunchboxStack) {
+    private void eatUntilFull(PlayerEntity user, World world, ItemStack lunchboxStack) {
         Random random = new Random();
         while (user.canConsume(false) && !user.getAbilities().invulnerable) {
             if (getInventory(lunchboxStack).isEmpty()) break;
@@ -236,7 +236,7 @@ public class LunchboxItem extends Item {
                 ItemStack stackToEat = data.getStacks().get(eat);
                 if (!stackToEat.isEmpty()) {
                     if (stackToEat.isFood()) {
-                        data.setStack(eat, user.eatFood(world, stackToEat));
+                        data.setStack(eat, stackToEat.finishUsing(world, user));
                     } else {
                         world.spawnEntity(new ItemEntity(world, user.getX(), user.getY(), user.getZ(), stackToEat));
                     }

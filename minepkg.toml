@@ -6,7 +6,7 @@ manifestVersion = 0
   type = "mod"
   name = "minerslunchbox"
   description = "Lunchbox, yum"
-  version = "1.0.3+mc1.19.2"
+  version = "1.0.3+mc1.19.3"
   platform = "fabric"
   license = "MIT"
   source = "https://github.com/Nova-Committee/MinersLunchbox"
@@ -15,7 +15,7 @@ manifestVersion = 0
 # These are global requirements
 [requirements]
   minecraft = "~1.19"
-  fabricLoader = ">=0.14.6"
+  fabricLoader = ">=0.14.8"
 
 [dependencies]
   fabric = "*"

@@ -1,5 +1,6 @@
 {
   "item.minerslunchbox.lunchbox": "Lunchbox",
+  "item.minerslunchbox.golden_lunchbox": "Golden Lunchbox",
 
   "tooltip.minerslunchbox.lunchbox.more": "and %s more...",
   "tooltip.minerslunchbox.lunchbox.more_info": "Press Shift for more info"

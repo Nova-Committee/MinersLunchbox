@@ -1,0 +1,9 @@
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "minerslunchbox:item/golden_lunchbox"
+    },
+    "overrides": [
+        { "predicate": { "contains_food": 0.0000001 }, "model": "minerslunchbox:item/golden_lunchbox_with_food" }
+    ]
+}

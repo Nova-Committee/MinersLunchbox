@@ -6,7 +6,10 @@
   "name": "Miner's Lunchbox",
   "description": "Lunchbox, yum",
   "authors": [
-    "pkstDev"
+    "Flamarine"
+  ],
+  "contributors": [
+    "oliwoli"
   ],
   "contact": {
     "sources": "https://github.com/Nova-Committee/MinersLunchbox"

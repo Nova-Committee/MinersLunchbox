@@ -12,11 +12,17 @@ import org.slf4j.LoggerFactory;
 
 public class MinersLunchbox implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("Miner's Lunchbox");
-	public static final LunchboxItem LUNCHBOX = new LunchboxItem(new Item.Settings().food(new FoodComponent.Builder().build()).maxCount(1).group(ItemGroup.TOOLS));
+	public static final LunchboxItem LUNCHBOX = new LunchboxItem(
+			new Item.Settings().food(new FoodComponent.Builder().build()).maxCount(1).group(ItemGroup.TOOLS),
+			128);
+	public static final LunchboxItem GOLDEN_LUNCHBOX = new LunchboxItem(
+			new Item.Settings().food(new FoodComponent.Builder().snack().build()).maxCount(1).group(ItemGroup.TOOLS),
+			64);
 
 	@Override
 	public void onInitialize() {
 		Registry.register(Registry.ITEM, new Identifier("minerslunchbox", "lunchbox"), LUNCHBOX);
+		Registry.register(Registry.ITEM, new Identifier("minerslunchbox", "golden_lunchbox"), GOLDEN_LUNCHBOX);
 		LOGGER.info("Initialized.");
 	}
 }

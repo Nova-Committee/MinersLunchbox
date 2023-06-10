@@ -1,0 +1,6 @@
+{
+    "parent": "minecraft:item/bundle",
+    "textures": {
+        "layer0": "minerslunchbox:item/golden_lunchbox_with_food"
+    }
+}

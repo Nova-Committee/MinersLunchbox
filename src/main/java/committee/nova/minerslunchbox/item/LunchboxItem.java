@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -27,6 +28,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -37,14 +39,17 @@ import java.util.concurrent.atomic.AtomicReference;
 public class LunchboxItem extends Item {
     private static final int ITEM_BAR_COLOR = MathHelper.packRgb(0.4F, 0.4F, 1.0F);
 
-    public LunchboxItem(Settings settings) {
+    private final int inventoryLimit;
+
+    public LunchboxItem(Settings settings, int inventoryLimit) {
         super(settings);
+        this.inventoryLimit = inventoryLimit;
     }
 
     @Override
     public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
         AtomicBoolean ret = new AtomicBoolean(false);
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             Random random = new Random();
             if (clickType == ClickType.RIGHT) {
                 ItemStack slotStack = slot.getStack();
@@ -61,7 +66,7 @@ public class LunchboxItem extends Item {
                         }
                     }
                 } else if (slotStack.isFood() && !(slotStack.getItem() instanceof LunchboxItem)) {
-                    int inserted = Math.min(LunchboxInventory.INVENTORY_LIMIT - data.getStacks().size(), slotStack.getCount());
+                    int inserted = Math.min(inventoryLimit - data.getStacks().size(), slotStack.getCount());
                     if (inserted > 0) {
                         this.playInsertSound(player);
                         for (int i = 0; i < inserted; i++) {
@@ -81,7 +86,7 @@ public class LunchboxItem extends Item {
     @Override
     public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
         AtomicBoolean ret = new AtomicBoolean(false);
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             if (clickType == ClickType.RIGHT && slot.canTakePartial(player)) {
                 if (otherStack.isEmpty()) {
                     if (!data.getStacks().isEmpty()) {
@@ -100,7 +105,7 @@ public class LunchboxItem extends Item {
                         }
                     }
                 } else if (otherStack.isFood() && !(otherStack.getItem() instanceof LunchboxItem)) {
-                    int inserted = Math.min(LunchboxInventory.INVENTORY_LIMIT - data.getStacks().size(), otherStack.getCount());
+                    int inserted = Math.min(inventoryLimit - data.getStacks().size(), otherStack.getCount());
                     if (inserted > 0) {
                         this.playInsertSound(player);
                         for (int i = 0; i < inserted; i++) {
@@ -123,7 +128,7 @@ public class LunchboxItem extends Item {
             if (player.isSneaking()) {
                 if (!player.isCreative() && !player.isSpectator()) eatUntilFull(player, world, stack);
             } else {
-                DataClient.use(LunchboxInventory::new, stack, (data) -> {
+                DataClient.use(this::getInventory, stack, (data) -> {
                     int eat = new Random().nextInt(data.getStacks().size());
                     ItemStack stackToEat = data.getStacks().get(eat);
                     if (!stackToEat.isEmpty()) {
@@ -150,7 +155,7 @@ public class LunchboxItem extends Item {
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
         AtomicReference<Optional<TooltipData>> tooltipData = new AtomicReference<>(Optional.empty());
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             if (Screen.hasShiftDown()) {
                 tooltipData.set(Optional.of(new BundleTooltipData(data.getStacks(), data.getStacks().size())));
             }
@@ -161,7 +166,7 @@ public class LunchboxItem extends Item {
     @Override
     public boolean isItemBarVisible(ItemStack stack) {
         AtomicBoolean ret = new AtomicBoolean(false);
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             if (!data.getStacks().isEmpty()) ret.set(true);
         });
         return ret.get();
@@ -170,10 +175,10 @@ public class LunchboxItem extends Item {
     @Override
     public int getItemBarStep(ItemStack stack) {
         AtomicInteger ret = new AtomicInteger(0);
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             if (!data.getStacks().isEmpty()) ret.set(data.getStacks().size());
         });
-        return Math.min(1 + 12 * ret.get() / LunchboxInventory.INVENTORY_LIMIT, 13);
+        return Math.min(1 + 12 * ret.get() / inventoryLimit, 13);
     }
 
     @Override
@@ -183,7 +188,7 @@ public class LunchboxItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             if (!Screen.hasShiftDown()) {
                 int i = 0;
                 int j = 0;
@@ -207,7 +212,7 @@ public class LunchboxItem extends Item {
 
     @Override
     public void onItemEntityDestroyed(ItemEntity entity) {
-        DataClient.use(LunchboxInventory::new, entity.getStack(), (data) ->
+        DataClient.use(this::getInventory, entity.getStack(), (data) ->
                 ItemUsage.spawnItemContents(entity, data.getStacks().stream())
         );
     }
@@ -217,7 +222,7 @@ public class LunchboxItem extends Item {
         ItemStack stack = user.getStackInHand(hand);
         if (world.isClient()) return TypedActionResult.pass(stack);
         AtomicBoolean condition = new AtomicBoolean(false);
-        DataClient.use(LunchboxInventory::new, stack, (data) -> {
+        DataClient.use(this::getInventory, stack, (data) -> {
             condition.set(!data.getStacks().isEmpty());
         });
         if (condition.get()) {
@@ -231,7 +236,7 @@ public class LunchboxItem extends Item {
         Random random = new Random();
         while (user.canConsume(false) && !user.getAbilities().invulnerable) {
             if (getInventory(lunchboxStack).isEmpty()) break;
-            DataClient.use(LunchboxInventory::new, lunchboxStack, (data) -> {
+            DataClient.use(this::getInventory, lunchboxStack, (data) -> {
                 int eat = random.nextInt(data.getStacks().size());
                 ItemStack stackToEat = data.getStacks().get(eat);
                 if (!stackToEat.isEmpty()) {
@@ -245,9 +250,15 @@ public class LunchboxItem extends Item {
         }
     }
 
+    public LunchboxInventory getInventory() {
+        return new LunchboxInventory(inventoryLimit);
+    }
+
     private static DefaultedList<ItemStack> getInventory(ItemStack stack) {
-        AtomicReference<DefaultedList<ItemStack>> ret = new AtomicReference<>(DefaultedList.of());
-        DataClient.use(LunchboxInventory::new, stack, (data) -> ret.set(data.getStacks()));
-        return ret.get();
+        if (stack.getNbt() == null) return DefaultedList.of();
+        if (!(stack.getItem() instanceof LunchboxItem lunchbox)) return DefaultedList.of();
+        DefaultedList<ItemStack> ret = DefaultedList.ofSize(lunchbox.inventoryLimit);
+        Inventories.readNbt(stack.getNbt(), ret);
+        return ret;
     }
 }

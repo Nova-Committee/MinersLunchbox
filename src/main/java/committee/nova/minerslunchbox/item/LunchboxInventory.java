@@ -12,8 +12,8 @@ public class LunchboxInventory implements CustomData {
 
     public static final int INVENTORY_LIMIT = 128;
 
-    public LunchboxInventory() {
-        this.stacks = DefaultedList.ofSize(INVENTORY_LIMIT);
+    public LunchboxInventory(int limit) {
+        this.stacks = DefaultedList.ofSize(limit);
     }
 
     public DefaultedList<ItemStack> getStacks() {
